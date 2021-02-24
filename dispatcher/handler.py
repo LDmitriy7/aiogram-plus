@@ -114,13 +114,9 @@ class Handler:
                     try:
                         if self.middleware_key:
                             await self.dispatcher.middleware.trigger(f"process_{self.middleware_key}", args + (data,))
-                        partial_data = _check_spec(handler_obj.spec, data)
 
-                        # 1) now Currents awailable for each handler
-                        from subfuncs.currents2 import Currents
-                        handler_arg_spec = inspect.getfullargspec(handler_obj.handler).args
-                        handler_args = args[:len(handler_arg_spec)]  # 2) remove extra args
-                        response = await Currents.set(handler_obj.handler)(*handler_args, **partial_data)
+                        from .currents import CurrentObjects
+                        response = await CurrentObjects.decorate(handler_obj.handler)(*args, **data)
 
                         if response is not None:
                             results.append(response)
